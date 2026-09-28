@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${modoEdicao ? 'Editar pessoa' : 'Nova pessoa'} + ' | Garagem de Veículos'">
+        Pessoa | Garagem de Veículos
+    </title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">GV</div>
+            <div>
+                <strong>Garagem</strong>
+                <span>de Veículos</span>
+            </div>
+        </div>
+
+        <nav>
+            <a class="nav-link active" th:href="@{/pessoas}">
+                <span>👥</span> Pessoas
+            </a>
+            <div class="nav-link disabled"><span>🚗</span> Veículos <small>Entrega 2</small></div>
+            <div class="nav-link disabled"><span>📅</span> Reservas <small>Entrega 2</small></div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span>Arquitetura de Software</span>
+            <small>UniRV • ESW430</small>
+        </div>
+    </aside>
+
+    <main class="content">
+        <header class="form-topbar">
+            <a class="back-link" th:href="@{/pessoas}">← Voltar para pessoas</a>
+
+            <div class="form-heading">
+                <p class="eyebrow" th:text="${modoEdicao ? 'EDIÇÃO DE CADASTRO' : 'NOVO CADASTRO'}">
+                    NOVO CADASTRO
+                </p>
+                <h1 th:text="${modoEdicao ? 'Editar pessoa' : 'Cadastrar pessoa'}">Cadastrar pessoa</h1>
+                <p class="subtitle">
+                    Preencha os dados abaixo. Os campos marcados com * são obrigatórios.
+                </p>
+            </div>
+        </header>
+
+        <section class="form-card">
+            <form th:object="${pessoa}"
+                  th:action="${modoEdicao}
+                      ? @{/pessoas/{id}/editar(id=${pessoa.id})}
+                      : @{/pessoas/novo}"
+                  method="post"
+                  novalidate>
+
+                <div class="form-grid">
+                    <div class="field field-full">
+                        <label for="nome">Nome completo *</label>
+                        <input id="nome"
+                               type="text"
+                               th:field="*{nome}"
+                               th:classappend="${#fields.hasErrors('nome')} ? ' input-error' : ''"
+                               placeholder="Ex.: Ana Souza"
+                               autocomplete="name">
+                        <span class="field-error"
+                              th:if="${#fields.hasErrors('nome')}"
+                              th:errors="*{nome}"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="cpf">CPF *</label>
+                        <input id="cpf"
+                               type="text"
+                               th:field="*{cpf}"
+                               th:classappend="${#fields.hasErrors('cpf')} ? ' input-error' : ''"
+                               placeholder="000.000.000-00"
+                               maxlength="14"
+                               inputmode="numeric">
+                        <span class="field-error"
+                              th:if="${#fields.hasErrors('cpf')}"
+                              th:errors="*{cpf}"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="telefone">Telefone</label>
+                        <input id="telefone"
+                               type="text"
+                               th:field="*{telefone}"
+                               placeholder="(64) 99999-9999"
+                               maxlength="15"
+                               inputmode="tel">
+                    </div>
+
+                    <div class="field field-full">
+                        <label for="email">E-mail *</label>
+                        <input id="email"
+                               type="email"
+                               th:field="*{email}"
+                               th:classappend="${#fields.hasErrors('email')} ? ' input-error' : ''"
+                               placeholder="nome@exemplo.com"
+                               autocomplete="email">
+                        <span class="field-error"
+                              th:if="${#fields.hasErrors('email')}"
+                              th:errors="*{email}"></span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn btn-secondary" th:href="@{/pessoas}">Cancelar</a>
+                    <button class="btn btn-primary" type="submit"
+                            th:text="${modoEdicao ? 'Salvar alterações' : 'Cadastrar pessoa'}">
+                        Cadastrar pessoa
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script>
+    function apenasNumeros(valor) {
+        return valor.replace(/\D/g, '');
+    }
+
+    function formatarCpf(valor) {
+        const v = apenasNumeros(valor).slice(0, 11);
+        return v
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+
+    function formatarTelefone(valor) {
+        const v = apenasNumeros(valor).slice(0, 11);
+
+        if (v.length <= 10) {
+            return v
+                .replace(/(\d{2})(\d)/, '($1) $2')
+                .replace(/(\d{4})(\d)/, '$1-$2');
+        }
+
+        return v
+            .replace(/(\d{2})(\d)/, '($1) $2')
+            .replace(/(\d{5})(\d)/, '$1-$2');
+    }
+
+    const cpf = document.getElementById('cpf');
+    const telefone = document.getElementById('telefone');
+
+    cpf.addEventListener('input', () => cpf.value = formatarCpf(cpf.value));
+    telefone.addEventListener('input', () => telefone.value = formatarTelefone(telefone.value));
+</script>
+</body>
+</html>
