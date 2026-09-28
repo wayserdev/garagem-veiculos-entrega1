@@ -105,7 +105,7 @@ O repositório é a única classe responsável por ler e gravar esse arquivo.
 
 ## Prints da Entrega 1
 
-<<<<<<< HEAD
+
 Adicionar aqui os prints da listagem e do formulário de Pessoas, conforme solicitado na atividade.
 
 Exemplo, caso os arquivos sejam adicionados na pasta `docs/`:
@@ -115,7 +115,6 @@ Exemplo, caso os arquivos sejam adicionados na pasta `docs/`:
 
 ![Formulário de Pessoa](docs/formulario-pessoa.png)
 ```
-=======
 ### Listagem de Pessoas
 
 ![Listagem de Pessoas](docs/listagem-pessoas.png)
