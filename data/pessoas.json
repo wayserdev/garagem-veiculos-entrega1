@@ -1,9 +1,13 @@
-[
-  {
-    "id" : 1,
-    "nome" : "Ana Souza",
-    "cpf" : "111.222.333-44",
-    "email" : "ana.souza@email.com",
-    "telefone" : "(64) 99999-0001"
-  }
-]
+[ {
+  "id" : 1,
+  "nome" : "Ana Souza",
+  "cpf" : "111.222.333-00",
+  "email" : "ana.souza@email.com",
+  "telefone" : "(64) 99999-0001"
+}, {
+  "id" : 2,
+  "nome" : "Elielton teste",
+  "cpf" : "999.999.999-44",
+  "email" : "elieltonteste@gmail.com",
+  "telefone" : "(64) 99999-9999"
+} ]
