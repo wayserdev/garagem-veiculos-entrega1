@@ -63,7 +63,6 @@ mvn clean package
 java -jar target/garagem-veiculos-1.0.0.jar
 ```
 
-<<<<<<< HEAD
 Ou, após gerar o pacote:
 
 ```bash
@@ -71,7 +70,6 @@ mvn clean package
 java -jar target/garagem-veiculos-1.0.0.jar
 ```
 
-=======
 >>>>>>> 37f8bec (Adiciona prints e finaliza Entrega 1)
 Depois acesse:
 
