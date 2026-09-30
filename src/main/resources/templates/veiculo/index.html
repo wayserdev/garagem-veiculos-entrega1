@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veículos | Garagem de Veículos</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">GV</div>
+            <div><strong>Garagem</strong><span>de Veículos</span></div>
+        </div>
+        <nav>
+
+            <a class="nav-link" th:href="@{/pessoas}"><span>👥</span> Pessoas</a>
+            <a class="nav-link active" th:href="@{/veiculos}"><span>🚗</span> Veículos</a>
+            <a class="nav-link" th:href="@{/}"><span>📅</span> Reservas</a>
+
+        </nav>
+        <div class="sidebar-footer">
+            <span>Arquitetura de Software</span>
+            <small>UniRV • ESW430</small>
+        </div>
+    </aside>
+
+    <main class="content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">ENTREGA 2</p>
+                <h1>Cadastro de Veículos</h1>
+                <p class="subtitle">Gerencie a frota da garagem com persistência em JSON.</p>
+            </div>
+            <a class="btn btn-primary" th:href="@{/veiculos/novo}">+ Novo veículo</a>
+        </header>
+
+        <section th:if="${sucesso}" class="alert success" th:text="${sucesso}"></section>
+        <section th:if="${erro}" class="alert danger" th:text="${erro}"></section>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <span class="stat-label">Veículos cadastrados</span>
+                <strong th:text="${#lists.size(veiculos)}">0</strong>
+                <span class="stat-note">Dados salvos em veiculos.json</span>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Veículos</h2>
+                    <p>Frota disponível no sistema.</p>
+                </div>
+                <div class="search-wrap">
+                    <input id="searchInput" type="search" placeholder="Buscar por placa, marca ou modelo">
+                </div>
+            </div>
+
+            <div class="table-wrap" th:if="${!#lists.isEmpty(veiculos)}">
+                <table id="vehicleTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Placa</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Ano</th>
+                        <th>Cor</th>
+                        <th class="actions-col">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="veiculo : ${veiculos}">
+                        <td><span class="id-badge" th:text="${'#' + veiculo.id}">#1</span></td>
+                        <td><strong th:text="${veiculo.placa}">ABC1D23</strong></td>
+                        <td th:text="${veiculo.marca}">Toyota</td>
+                        <td th:text="${veiculo.modelo}">Corolla</td>
+                        <td th:text="${veiculo.ano}">2025</td>
+                        <td th:text="${#strings.isEmpty(veiculo.cor) ? '—' : veiculo.cor}">Prata</td>
+                        <td>
+                            <div class="actions">
+                                <a class="btn btn-secondary btn-sm"
+                                   th:href="@{/veiculos/{id}/editar(id=${veiculo.id})}">Editar</a>
+                                <form th:action="@{/veiculos/{id}/excluir(id=${veiculo.id})}"
+                                      method="post"
+                                      onsubmit="return confirm('Deseja realmente excluir este veículo?');">
+                                    <button class="btn btn-danger btn-sm" type="submit">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(veiculos)}">
+                <div class="empty-icon">🚗</div>
+                <h3>Nenhum veículo cadastrado</h3>
+                <p>Cadastre o primeiro veículo para começar a fazer reservas.</p>
+                <a class="btn btn-primary" th:href="@{/veiculos/novo}">Cadastrar veículo</a>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const rows = document.querySelectorAll('#vehicleTable tbody tr');
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const termo = this.value.toLowerCase().trim();
+            rows.forEach(row => row.style.display =
+                row.innerText.toLowerCase().includes(termo) ? '' : 'none');
+        });
+    }
+</script>
+</body>
+</html>

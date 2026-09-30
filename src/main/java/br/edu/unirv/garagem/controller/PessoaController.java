@@ -2,6 +2,7 @@ package br.edu.unirv.garagem.controller;
 
 import br.edu.unirv.garagem.model.Pessoa;
 import br.edu.unirv.garagem.repository.IPessoaRepository;
+import br.edu.unirv.garagem.repository.IReservaRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,14 +17,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class PessoaController {
 
     private final IPessoaRepository pessoaRepository;
+    private final IReservaRepository reservaRepository;
 
-    public PessoaController(IPessoaRepository pessoaRepository) {
+    public PessoaController(
+            IPessoaRepository pessoaRepository,
+            IReservaRepository reservaRepository) {
+
         this.pessoaRepository = pessoaRepository;
-    }
-
-    @GetMapping("/")
-    public String inicio() {
-        return "redirect:/pessoas";
+        this.reservaRepository = reservaRepository;
     }
 
     @GetMapping("/pessoas")
@@ -100,6 +101,14 @@ public class PessoaController {
 
     @PostMapping("/pessoas/{id}/excluir")
     public String excluir(@PathVariable int id, RedirectAttributes redirectAttributes) {
+        if (reservaRepository.existeReservaParaPessoa(id)) {
+            redirectAttributes.addFlashAttribute(
+                    "erro",
+                    "Não é possível excluir esta pessoa porque ela possui reserva vinculada."
+            );
+            return "redirect:/pessoas";
+        }
+
         try {
             pessoaRepository.remover(id);
             redirectAttributes.addFlashAttribute("sucesso", "Pessoa excluída com sucesso.");

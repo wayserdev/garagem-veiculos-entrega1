@@ -1,97 +1,96 @@
-# Garagem de Veículos — Entrega 1
+# Garagem de Veículos — Entrega 2
 
 Atividade prática da disciplina **Arquitetura de Software — ESW430 — UniRV**.
 
-## Entrega 1 — Módulo Pessoas
+## Sistema completo
 
-Sistema web desenvolvido em **Java 17 + Spring Boot + Thymeleaf**, aplicando:
+Projeto desenvolvido em **Java 17 + Spring Boot + Thymeleaf**, aplicando:
 
 - MVC
 - Repository Pattern
 - Injeção de Dependência
 - Princípios SOLID
-- Persistência em arquivo JSON
+- Persistência em arquivos JSON
 
-## Funcionalidades
+## Módulos
 
-- Listagem de pessoas
-- Cadastro de pessoa
-- Edição de pessoa
-- Exclusão com confirmação
+### Pessoas
+
+- Listar, cadastrar, editar e excluir
+- Nome, CPF, e-mail e telefone
+- CPF único
 - Persistência em `data/pessoas.json`
-- Validação de nome
-- Validação de e-mail
-- Validação de CPF com 11 números
-- Bloqueio de CPF duplicado
-- Busca rápida na listagem
-- Interface responsiva
-- Dados mantidos após reiniciar a aplicação
 
-## Estrutura principal
+### Veículos
 
-```text
-src/main/java/br/edu/unirv/garagem/
-├── controller/
-│   └── PessoaController.java
-├── model/
-│   └── Pessoa.java
-├── repository/
-│   ├── IPessoaRepository.java
-│   └── PessoaRepository.java
-└── GaragemApplication.java
-```
+- Listar, cadastrar, editar e excluir
+- Placa, marca, modelo, ano e cor
+- Placa única
+- Persistência em `data/veiculos.json`
 
-Fluxo da aplicação:
+### Reservas
+
+- Página inicial do sistema
+- Vincula pessoa + veículo + período
+- Edita o período e os vínculos da reserva
+- Cancela reserva
+- Mostra cada veículo como **Disponível** ou **Reservado** na data atual
+- Impede reservas sobrepostas do mesmo veículo
+- Valida se pessoa e veículo existem
+- Impede data final anterior à data inicial
+- Persistência em `data/reservas.json`
+
+A regra de conflito fica no `IReservaRepository` / `ReservaRepository`, e não no Controller.
+
+## Arquitetura
 
 ```text
 View → Controller → Interface → Repository → JSON
 ```
 
-O `PessoaController` depende apenas de `IPessoaRepository`, recebida por injeção de dependência pelo construtor. O acesso ao arquivo JSON fica restrito ao `PessoaRepository`.
+Estrutura principal:
 
-## Requisitos
+```text
+src/main/java/br/edu/unirv/garagem/
+├── controller/
+│   ├── PessoaController.java
+│   ├── VeiculoController.java
+│   └── ReservaController.java
+├── model/
+│   ├── Pessoa.java
+│   ├── Veiculo.java
+│   └── Reserva.java
+├── repository/
+│   ├── IPessoaRepository.java
+│   ├── PessoaRepository.java
+│   ├── IVeiculoRepository.java
+│   ├── VeiculoRepository.java
+│   ├── IReservaRepository.java
+│   └── ReservaRepository.java
+└── GaragemApplication.java
+```
+
+## Como executar
+
+Requisitos:
 
 - Java 17 ou superior
 - Maven 3.9 ou superior
 
-## Como executar
-
-Na pasta do projeto, execute:
+Na pasta do projeto:
 
 ```bash
 mvn clean package
 java -jar target/garagem-veiculos-1.0.0.jar
 ```
 
-Ou, após gerar o pacote:
-
-```bash
-mvn clean package
-java -jar target/garagem-veiculos-1.0.0.jar
-```
-
->>>>>>> 37f8bec (Adiciona prints e finaliza Entrega 1)
 Depois acesse:
 
 ```text
 http://localhost:8080
 ```
 
-Também é possível executar com:
-
-```bash
-mvn spring-boot:run
-```
-
-## Persistência
-
-Os dados são salvos em:
-
-```text
-data/pessoas.json
-```
-
-O repositório é a única classe responsável por ler e gravar esse arquivo.
+A página inicial é **Reservas**.
 
 ## Integrante
 
@@ -99,20 +98,10 @@ O repositório é a única classe responsável por ler e gravar esse arquivo.
 
 ## Ferramentas de IA utilizadas
 
-- **ChatGPT** — apoio na estruturação, implementação, revisão e documentação do projeto.
+- **ChatGPT** — apoio na estruturação, implementação, revisão, testes e documentação do projeto.
 
 ## Prints da Entrega 1
 
-
-Adicionar aqui os prints da listagem e do formulário de Pessoas, conforme solicitado na atividade.
-
-Exemplo, caso os arquivos sejam adicionados na pasta `docs/`:
-
-```md
-![Listagem de Pessoas](docs/listagem-pessoas.png)
-
-![Formulário de Pessoa](docs/formulario-pessoa.png)
-```
 ### Listagem de Pessoas
 
 ![Listagem de Pessoas](docs/listagem-pessoas.png)
@@ -120,4 +109,15 @@ Exemplo, caso os arquivos sejam adicionados na pasta `docs/`:
 ### Formulário de Pessoa
 
 ![Formulário de Pessoa](docs/formulario-pessoa.png)
->>>>>>> 37f8bec (Adiciona prints e finaliza Entrega 1)
+
+## Prints da Entrega 2
+
+### Página de Reservas
+
+![Página de Reservas](docs/reservas.png)
+
+### Bloqueio de Reserva em Conflito
+
+O sistema impede que o mesmo veículo receba duas reservas em períodos sobrepostos.
+
+![Reserva em conflito bloqueada](docs/conflito-reserva.png)

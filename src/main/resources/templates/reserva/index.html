@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas | Garagem de Veículos</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">GV</div>
+            <div><strong>Garagem</strong><span>de Veículos</span></div>
+        </div>
+        <nav>
+
+            <a class="nav-link" th:href="@{/pessoas}"><span>👥</span> Pessoas</a>
+            <a class="nav-link" th:href="@{/veiculos}"><span>🚗</span> Veículos</a>
+            <a class="nav-link active" th:href="@{/}"><span>📅</span> Reservas</a>
+
+        </nav>
+        <div class="sidebar-footer">
+            <span>Arquitetura de Software</span>
+            <small>UniRV • ESW430</small>
+        </div>
+    </aside>
+
+    <main class="content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">ENTREGA 2</p>
+                <h1>Reservas</h1>
+                <p class="subtitle">Vincule uma pessoa a um veículo por um período, sem conflitos de agenda.</p>
+            </div>
+        </header>
+
+        <section th:if="${sucesso}" class="alert success" th:text="${sucesso}"></section>
+        <section th:if="${erro}" class="alert danger" th:text="${erro}"></section>
+
+        <section class="dashboard-grid">
+            <article class="stat-card">
+                <span class="stat-label">Reservas cadastradas</span>
+                <strong th:text="${#lists.size(reservas)}">0</strong>
+                <span class="stat-note">Persistência em reservas.json</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Veículos cadastrados</span>
+                <strong th:text="${#lists.size(veiculos)}">0</strong>
+                <span class="stat-note">Status calculado para hoje</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Pessoas cadastradas</span>
+                <strong th:text="${#lists.size(pessoas)}">0</strong>
+                <span class="stat-note">Disponíveis para reserva</span>
+            </article>
+        </section>
+
+        <section class="panel reservation-form-panel">
+            <div class="panel-header">
+                <div>
+                    <h2 th:text="${modoEdicao ? 'Editar reserva' : 'Nova reserva'}">Nova reserva</h2>
+                    <p>Escolha a pessoa, o veículo e o período desejado.</p>
+                </div>
+                <a th:if="${modoEdicao}" class="btn btn-secondary" th:href="@{/}">Cancelar edição</a>
+            </div>
+
+            <form class="reservation-form"
+                  th:object="${reserva}"
+                  th:action="${modoEdicao} ? @{/reservas/{id}/editar(id=${reserva.id})} : @{/reservas/novo}"
+                  method="post">
+
+                <div class="reservation-grid">
+                    <div class="field">
+                        <label for="pessoaId">Pessoa *</label>
+                        <select id="pessoaId" th:field="*{pessoaId}"
+                                th:classappend="${#fields.hasErrors('pessoaId')} ? ' input-error' : ''">
+                            <option value="">Selecione uma pessoa</option>
+                            <option th:each="p : ${pessoas}"
+                                    th:value="${p.id}"
+                                    th:text="${p.nome}"></option>
+                        </select>
+                        <span class="field-error" th:if="${#fields.hasErrors('pessoaId')}" th:errors="*{pessoaId}"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="veiculoId">Veículo *</label>
+                        <select id="veiculoId" th:field="*{veiculoId}"
+                                th:classappend="${#fields.hasErrors('veiculoId')} ? ' input-error' : ''">
+                            <option value="">Selecione um veículo</option>
+                            <option th:each="v : ${veiculos}"
+                                    th:value="${v.id}"
+                                    th:text="${v.placa + ' • ' + v.marca + ' ' + v.modelo}"></option>
+                        </select>
+                        <span class="field-error" th:if="${#fields.hasErrors('veiculoId')}" th:errors="*{veiculoId}"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="dataInicio">Data inicial *</label>
+                        <input id="dataInicio" type="date" th:field="*{dataInicio}"
+                               th:classappend="${#fields.hasErrors('dataInicio')} ? ' input-error' : ''">
+                        <span class="field-error" th:if="${#fields.hasErrors('dataInicio')}" th:errors="*{dataInicio}"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="dataFim">Data final *</label>
+                        <input id="dataFim" type="date" th:field="*{dataFim}"
+                               th:classappend="${#fields.hasErrors('dataFim')} ? ' input-error' : ''">
+                        <span class="field-error" th:if="${#fields.hasErrors('dataFim')}" th:errors="*{dataFim}"></span>
+                    </div>
+                </div>
+
+                <div class="form-actions compact-actions">
+                    <button class="btn btn-primary" type="submit"
+                            th:text="${modoEdicao ? 'Salvar reserva' : 'Criar reserva'}">
+                        Criar reserva
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel status-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Status dos veículos hoje</h2>
+                    <p th:text="${'Situação em ' + hojeFormatado}">Situação de hoje</p>
+                </div>
+            </div>
+            <div class="vehicle-status-grid" th:if="${!#lists.isEmpty(veiculos)}">
+                <article class="vehicle-status-card" th:each="v : ${veiculos}">
+                    <div>
+                        <strong th:text="${v.placa}">ABC1D23</strong>
+                        <span th:text="${v.marca + ' ' + v.modelo}">Toyota Corolla</span>
+                    </div>
+                    <span class="status-badge"
+                          th:classappend="${statusHoje[v.id] ? ' reserved' : ' available'}"
+                          th:text="${statusHoje[v.id] ? 'Reservado' : 'Disponível'}">
+                        Disponível
+                    </span>
+                </article>
+            </div>
+            <div class="empty-inline" th:if="${#lists.isEmpty(veiculos)}">
+                Cadastre um veículo para visualizar o status.
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Reservas cadastradas</h2>
+                    <p>Períodos ativos, futuros e anteriores.</p>
+                </div>
+            </div>
+
+            <div class="table-wrap" th:if="${!#lists.isEmpty(reservas)}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Veículo</th>
+                        <th>Pessoa</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th class="actions-col">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r : ${reservas}">
+                        <td><span class="id-badge" th:text="${'#' + r.id}">#1</span></td>
+                        <td>
+                            <strong th:if="${veiculosPorId[r.veiculoId] != null}"
+                                    th:text="${veiculosPorId[r.veiculoId].placa}">ABC1D23</strong>
+                            <span th:if="${veiculosPorId[r.veiculoId] != null}"
+                                  th:text="${' • ' + veiculosPorId[r.veiculoId].modelo}"> • Corolla</span>
+                            <span th:if="${veiculosPorId[r.veiculoId] == null}">Veículo removido</span>
+                        </td>
+                        <td th:text="${pessoasPorId[r.pessoaId] != null ? pessoasPorId[r.pessoaId].nome : 'Pessoa removida'}">
+                            Pessoa
+                        </td>
+                        <td th:text="${r.dataInicioFormatada}">01/10/2026</td>
+                        <td th:text="${r.dataFimFormatada}">05/10/2026</td>
+                        <td>
+                            <div class="actions">
+                                <a class="btn btn-secondary btn-sm"
+                                   th:href="@{/reservas/{id}/editar(id=${r.id})}">Editar</a>
+                                <form th:action="@{/reservas/{id}/excluir(id=${r.id})}" method="post"
+                                      onsubmit="return confirm('Deseja cancelar esta reserva?');">
+                                    <button class="btn btn-danger btn-sm" type="submit">Cancelar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(reservas)}">
+                <div class="empty-icon">📅</div>
+                <h3>Nenhuma reserva cadastrada</h3>
+                <p>Use o formulário acima para criar a primeira reserva.</p>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "placa": "ABC1D23",
+    "marca": "Toyota",
+    "modelo": "Corolla",
+    "ano": 2025,
+    "cor": "Prata"
+  },
+  {
+    "id": 2,
+    "placa": "DEF4G56",
+    "marca": "Chevrolet",
+    "modelo": "Onix",
+    "ano": 2024,
+    "cor": "Branco"
+  }
+]

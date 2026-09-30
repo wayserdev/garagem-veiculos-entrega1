@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${modoEdicao ? 'Editar veículo' : 'Novo veículo'} + ' | Garagem de Veículos'">
+        Veículo | Garagem de Veículos
+    </title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">GV</div>
+            <div><strong>Garagem</strong><span>de Veículos</span></div>
+        </div>
+        <nav>
+
+            <a class="nav-link" th:href="@{/pessoas}"><span>👥</span> Pessoas</a>
+            <a class="nav-link active" th:href="@{/veiculos}"><span>🚗</span> Veículos</a>
+            <a class="nav-link" th:href="@{/}"><span>📅</span> Reservas</a>
+
+        </nav>
+        <div class="sidebar-footer">
+            <span>Arquitetura de Software</span>
+            <small>UniRV • ESW430</small>
+        </div>
+    </aside>
+
+    <main class="content">
+        <header class="form-topbar">
+            <a class="back-link" th:href="@{/veiculos}">← Voltar para veículos</a>
+            <div class="form-heading">
+                <p class="eyebrow" th:text="${modoEdicao ? 'EDIÇÃO DE VEÍCULO' : 'NOVO VEÍCULO'}">NOVO VEÍCULO</p>
+                <h1 th:text="${modoEdicao ? 'Editar veículo' : 'Cadastrar veículo'}">Cadastrar veículo</h1>
+                <p class="subtitle">Preencha os dados abaixo. Os campos marcados com * são obrigatórios.</p>
+            </div>
+        </header>
+
+        <section class="form-card">
+            <form th:object="${veiculo}"
+                  th:action="${modoEdicao} ? @{/veiculos/{id}/editar(id=${veiculo.id})} : @{/veiculos/novo}"
+                  method="post"
+                  novalidate>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="placa">Placa *</label>
+                        <input id="placa" type="text" th:field="*{placa}" maxlength="8"
+                               th:classappend="${#fields.hasErrors('placa')} ? ' input-error' : ''"
+                               placeholder="ABC1D23">
+                        <span class="field-error" th:if="${#fields.hasErrors('placa')}" th:errors="*{placa}"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="ano">Ano *</label>
+                        <input id="ano" type="number" th:field="*{ano}" min="1900" max="2100"
+                               th:classappend="${#fields.hasErrors('ano')} ? ' input-error' : ''"
+                               placeholder="2025">
+                        <span class="field-error" th:if="${#fields.hasErrors('ano')}" th:errors="*{ano}"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="marca">Marca *</label>
+                        <input id="marca" type="text" th:field="*{marca}"
+                               th:classappend="${#fields.hasErrors('marca')} ? ' input-error' : ''"
+                               placeholder="Toyota">
+                        <span class="field-error" th:if="${#fields.hasErrors('marca')}" th:errors="*{marca}"></span>
+                    </div>
+
+                    <div class="field">
+                        <label for="modelo">Modelo *</label>
+                        <input id="modelo" type="text" th:field="*{modelo}"
+                               th:classappend="${#fields.hasErrors('modelo')} ? ' input-error' : ''"
+                               placeholder="Corolla">
+                        <span class="field-error" th:if="${#fields.hasErrors('modelo')}" th:errors="*{modelo}"></span>
+                    </div>
+
+                    <div class="field field-full">
+                        <label for="cor">Cor</label>
+                        <input id="cor" type="text" th:field="*{cor}" placeholder="Prata">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn btn-secondary" th:href="@{/veiculos}">Cancelar</a>
+                    <button class="btn btn-primary" type="submit"
+                            th:text="${modoEdicao ? 'Salvar alterações' : 'Cadastrar veículo'}">
+                        Cadastrar veículo
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script>
+    const placa = document.getElementById('placa');
+    placa.addEventListener('input', () => {
+        let v = placa.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 7);
+        placa.value = v;
+    });
+</script>
+</body>
+</html>

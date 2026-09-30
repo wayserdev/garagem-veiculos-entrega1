@@ -1,0 +1,24 @@
+ENTREGA 2 — TESTE RÁPIDO
+
+1. Abra o terminal nesta pasta.
+2. Rode:
+   mvn clean package
+3. Depois:
+   java -jar target\garagem-veiculos-1.0.0.jar
+4. Abra:
+   http://localhost:8080
+
+TESTE:
+- Pessoas: cadastrar/editar/excluir.
+- Veículos: cadastrar/editar/excluir.
+- Reservas: criar uma reserva.
+- Crie outra reserva para o MESMO veículo com datas sobrepostas.
+  O sistema deve bloquear e mostrar mensagem de conflito.
+- Edite uma reserva.
+- Cancele uma reserva.
+- Feche e abra o programa e confirme que os dados continuam salvos.
+
+ANTES DE ENTREGAR:
+- Tire um print da página Reservas.
+- Tire um print de uma tentativa de conflito bloqueada.
+- Coloque os dois prints em docs/ e referencie no README.
