@@ -1,0 +1,17 @@
+digraph componentes {
+  graph [rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.6, ranksep=0.9, fontname="Arial", label="Arquitetura cliente-servidor em N camadas", labelloc=t, fontsize=23];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=13, color="#304760", penwidth=1.5];
+  edge [color="#52677b", arrowsize=0.8, penwidth=1.5, fontname="Arial"];
+  Cliente [label="CLIENTE CONSOLE\n(Java 17 / View)", fillcolor="#dfedfc"];
+  subgraph cluster_servidor {
+    label="SERVIDOR SPRING BOOT (API REST)"; fontname="Arial"; fontsize=16; style="rounded,dashed"; color="#8294a7";
+    Controladores [label="CONTROLLERS (MVC)\nPessoas / Veículos / Reservas", fillcolor="#d9efe6"];
+    Servicos [label="SERVICES (regras)\nPessoa / Veículo / Reserva", fillcolor="#e8defa"];
+    Repositorios [label="REPOSITORIES (JPA)\nInterfaces + Spring Data", fillcolor="#fff1cf"];
+    Banco [label="H2 DATABASE\nArquivo local", shape=cylinder, fillcolor="#f1eeee"];
+    Controladores -> Servicos [label="injeção por construtor"];
+    Servicos -> Repositorios [label="injeção por construtor"];
+    Repositorios -> Banco [label="JPA / SQL"];
+  }
+  Cliente -> Controladores [label="HTTP / JSON"];
+}

@@ -1,0 +1,20 @@
+digraph fluxo {
+ graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.6, fontname="Arial", label="Fluxo de criação e cancelamento de reserva", labelloc=t, fontsize=22];
+ node [shape=box, style="rounded,filled", color="#5b738d", fillcolor="#eaf1fa", fontname="Arial", fontsize=12];
+ edge [color="#516d88", arrowsize=0.8, fontname="Arial"];
+ A [label="Cliente: escolhe pessoa e veículo"];
+ B [label="HTTP POST /api/reservas"];
+ C [label="ReservaController"];
+ D [label="ReservaService verifica pessoa e veículo"];
+ E [shape=diamond, label="Veículo disponível?", fillcolor="#f8f0d9"];
+ F [label="HTTP 409: indisponível", fillcolor="#ffe6e4"];
+ G [label="Transação: reserva ATIVA + veículo indisponível", fillcolor="#e0f4e8"];
+ H [label="Repository / H2: confirma ambas alterações"];
+ I [label="HTTP 201: reserva criada", fillcolor="#e0f4e8"];
+ J [label="PUT /api/reservas/{id}/cancelar"];
+ K [label="Transação: CANCELADA + veículo disponível", fillcolor="#e0f4e8"];
+ A -> B -> C -> D -> E;
+ E -> F [label="não"];
+ E -> G [label="sim"];
+ G -> H -> I -> J -> K;
+}

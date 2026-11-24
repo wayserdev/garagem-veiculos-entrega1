@@ -1,123 +1,166 @@
-# Garagem de Veículos — Entrega 2
+# Garagem de Veículos — N3: Cliente-Servidor e Arquitetura em N Camadas
 
-Atividade prática da disciplina **Arquitetura de Software — ESW430 — UniRV**.
+Trabalho individual da disciplina **Arquitetura de Software (ESW430)** — Engenharia de Software, UniRV, 2026.  
+**Aluno:** Wayser Henrique de Faria Lopes  
+**Tema 5:** Estilo cliente-servidor e arquiteturas em N camadas.  
+**Professor:** Elielton de Souza Silva Monteiro.
 
-## Sistema completo
+## 1. Objetivo e entregável
 
-Projeto desenvolvido em **Java 17 + Spring Boot + Thymeleaf**, aplicando:
+Demonstrar a **separação física entre cliente e servidor em dois projetos distintos**, conectados por HTTP/JSON, preservando no servidor as camadas **Controller (MVC), Service, Repository e Model** e a injeção de dependências. O sistema permite listar/cadastrar pessoas e veículos, criar reservas de veículos disponíveis e cancelar reservas.
 
-- MVC
-- Repository Pattern
-- Injeção de Dependência
-- Princípios SOLID
-- Persistência em arquivos JSON
+> Este repositório é um exemplo acadêmico executável. O serviço possui dados iniciais de demonstração e grava alterações em banco H2 local. Não possui autenticação: não deve ser exposto na Internet como serviço de produção.
 
-## Módulos
+## 2. Tecnologias
 
-### Pessoas
+- Java **17+**
+- **Servidor**: Spring Boot 3.5.16, Spring Web MVC, Spring Data JPA, Bean Validation e H2.
+- **Cliente separado**: Java 17 puro (projeto Maven independente, sem bibliotecas adicionais), `java.net.http.HttpClient` (sem dependências externas).
+- **Comunicação**: API REST em HTTP com mensagens JSON.
+- **Banco**: H2 gravado em `servidor-api/garagem.mv.db`.
+- **Testes**: JUnit 5 + MockMvc.
 
-- Listar, cadastrar, editar e excluir
-- Nome, CPF, e-mail e telefone
-- CPF único
-- Persistência em `data/pessoas.json`
+## 3. Pré-requisitos
 
-### Veículos
+1. Instale **JDK 17 ou superior** e confirme com `java -version`.
+2. Instale **Apache Maven 3.6.3 ou superior** e confirme com `mvn -version`.
+3. Na primeira execução, mantenha conexão com a internet para o Maven baixar dependências.
+4. Deixe a porta **8080** livre.
 
-- Listar, cadastrar, editar e excluir
-- Placa, marca, modelo, ano e cor
-- Placa única
-- Persistência em `data/veiculos.json`
+## 4. Execução completa — a partir da raiz do repositório
 
-### Reservas
-
-- Página inicial do sistema
-- Vincula pessoa + veículo + período
-- Edita o período e os vínculos da reserva
-- Cancela reserva
-- Mostra cada veículo como **Disponível** ou **Reservado** na data atual
-- Impede reservas sobrepostas do mesmo veículo
-- Valida se pessoa e veículo existem
-- Impede data final anterior à data inicial
-- Persistência em `data/reservas.json`
-
-A regra de conflito fica no `IReservaRepository` / `ReservaRepository`, e não no Controller.
-
-## Arquitetura
-
-```text
-View → Controller → Interface → Repository → JSON
-```
-
-Estrutura principal:
-
-```text
-src/main/java/br/edu/unirv/garagem/
-├── controller/
-│   ├── PessoaController.java
-│   ├── VeiculoController.java
-│   └── ReservaController.java
-├── model/
-│   ├── Pessoa.java
-│   ├── Veiculo.java
-│   └── Reserva.java
-├── repository/
-│   ├── IPessoaRepository.java
-│   ├── PessoaRepository.java
-│   ├── IVeiculoRepository.java
-│   ├── VeiculoRepository.java
-│   ├── IReservaRepository.java
-│   └── ReservaRepository.java
-└── GaragemApplication.java
-```
-
-## Como executar
-
-Requisitos:
-
-- Java 17 ou superior
-- Maven 3.9 ou superior
-
-Na pasta do projeto:
+### Terminal 1 — iniciar o servidor
 
 ```bash
-mvn clean package
-java -jar target/garagem-veiculos-1.0.0.jar
+cd servidor-api
+mvn spring-boot:run
 ```
 
-Depois acesse:
+**Mantenha este terminal aberto.** Aguarde a mensagem `Started GaragemApplication`.
+
+Para verificar, abra no navegador: **http://localhost:8080/api/status**. Resultado esperado: um JSON com `"status":"online"`.
+
+### Terminal 2 — iniciar o cliente (outro terminal)
+
+Volte para a **pasta raiz do repositório**, onde ficam as pastas `servidor-api` e `cliente-console`. Então execute:
+
+```bash
+java cliente-console/src/main/java/GaragemCliente.java
+```
+
+Alternativamente, entre em `cliente-console` e execute `mvn -q compile exec:java`. O menu apresenta opções de 1 a 7. Uma sequência para testar: **1** listar pessoas; **3** listar veículos; **6** reservar informando os IDs exibidos; **5** listar reservas; **7** cancelar informando ID; **3** verificar se o veículo voltou a ficar disponível. Para sair, pressione **0**.
+
+**No Windows:** execute os mesmos comandos no PowerShell (Java e Maven devem estar no PATH). Se o terminal estiver na pasta `servidor-api`, use `cd ..` antes do comando do cliente.
+
+### Testes automatizados
+
+Em um terceiro terminal, dentro de `servidor-api` (ou após parar o servidor), execute:
+
+```bash
+mvn test
+```
+
+O teste de integração exercita os endpoints de cadastro, reserva, bloqueio de duplicidade, cancelamento e validação de entrada. Durante os testes, é usado H2 em memória, isolado da base de demonstração.
+
+## 5. Estrutura dos DOIS projetos
 
 ```text
-http://localhost:8080
+Garagem_Veiculos_N3_Cliente_Servidor/
+├── cliente-console/                # projeto 1: apresentação e HTTP (Java puro)
+│   ├── src/main/java/GaragemCliente.java
+│   ├── pom.xml
+│   └── README.md
+├── servidor-api/                   # projeto 2: API (Spring Boot)
+│   ├── pom.xml
+│   └── src/
+│       ├── main/java/br/edu/unirv/garagem/
+│       │   ├── controller/         # Controller (MVC)
+│       │   ├── dto/                # validação de entrada
+│       │   ├── service/            # regras de negócio
+│       │   ├── repository/         # interfaces JpaRepository
+│       │   ├── model/              # entidades (Model)
+│       │   └── exception/          # erros HTTP
+│       └── test/                   # integração HTTP com MockMvc
+├── docs/                           # diagramas .svg, .png e fontes .dot
+├── .gitignore
+└── README.md
 ```
 
-A página inicial é **Reservas**.
+O cliente **não importa** classes do servidor e **não acessa** diretamente o banco. A API é o contrato que permite inclusive substituí-lo por outro cliente.
 
-## Integrante
+## 6. Diagramas
 
-- **Wayser Henrique de Faria Lopes**
+**Componentes e camadas:**
 
-## Ferramentas de IA utilizadas
+![Diagrama de componentes: cliente, API, serviços, repositórios e banco](docs/componentes.png)
 
-- **ChatGPT** — apoio na estruturação, implementação, revisão, testes e documentação do projeto.
+**Fluxo de uma reserva e cancelamento:**
 
-## Prints da Entrega 1
+![Fluxo da reserva](docs/fluxo-reserva.png)
 
-### Listagem de Pessoas
+Fontes dos diagramas estão em `docs/*.dot`; os SVGs podem ser abertos separadamente em alta resolução.
 
-![Listagem de Pessoas](docs/listagem-pessoas.png)
+## 7. API REST — contrato
 
-### Formulário de Pessoa
+| Método | Rota | Resultado |
+|---|---|---|
+| GET | `/api/status` | confirma API online |
+| GET | `/api/pessoas` | lista pessoas |
+| GET | `/api/pessoas/{id}` | detalha uma pessoa |
+| POST | `/api/pessoas` | cadastra pessoa |
+| GET | `/api/veiculos` | lista veículos |
+| GET | `/api/veiculos/{id}` | detalha um veículo |
+| POST | `/api/veiculos` | cadastra veículo |
+| GET | `/api/reservas` | lista reservas |
+| GET | `/api/reservas/{id}` | detalha uma reserva |
+| POST | `/api/reservas` | cria reserva se veículo disponível |
+| PUT | `/api/reservas/{id}/cancelar` | cancela e libera veículo |
 
-![Formulário de Pessoa](docs/formulario-pessoa.png)
+Exemplos dos corpos JSON:
 
-## Prints da Entrega 2
+```json
+{"nome":"Ana Silva","email":"ana@example.com"}
+```
 
-### Página de Reservas
+Para `POST /api/pessoas`.
 
-![Página de Reservas](docs/reservas.png)
+```json
+{"placa":"ABC1D23","modelo":"Honda Civic"}
+```
 
-### Bloqueio de Reserva em Conflito
+Para `POST /api/veiculos`.
 
-O sistema impede que o mesmo veículo receba duas reservas em períodos sobrepostos.
+```json
+{"pessoaId":1,"veiculoId":1}
+```
 
-![Reserva em conflito bloqueada](docs/conflito-reserva.png)
+Para `POST /api/reservas`. Primeiro consulte os IDs, pois eles dependem da base. Os status HTTP incluem **201** (criado), **400** (validação), **404** (não encontrado) e **409** (conflito/veículo ocupado).
+
+## 8. Arquitetura, Repository, DI, MVC e SOLID
+
+- **Cliente-servidor**: console em processo/projeto independente envia requisições HTTP para API Spring Boot. Servidor concentra dados e regras.
+- **N camadas**: apresentação (console + controllers REST), aplicação (services), persistência (repositories), domínio (models), banco H2.
+- **MVC**: Controller é implementado pelos `@RestController`; Model representa entidades e regras da aplicação; View é o cliente console que apresenta respostas ao usuário, utilizando a API como fronteira.
+- **Repository**: interfaces `PessoaRepository`, `VeiculoRepository` e `ReservaRepository` estendem `JpaRepository`; controllers não manipulam banco.
+- **DI e inversão de dependência**: construtores recebem interfaces de repositório e serviços; Spring fornece as implementações automaticamente.
+- **SOLID**: responsabilidade única nas camadas; dependência de contratos (`JpaRepository`) em vez de instanciar infraestrutura; serviços são independentes da apresentação.
+- **Consistência**: `@Transactional` une as mudanças de reserva e disponibilidade; bloqueio pessimista impede duas reservas simultâneas do mesmo veículo.
+
+## 9. Dados e comportamento de negócio
+
+Na primeira execução o servidor gera uma pessoa de demonstração e um veículo (`ABC1D23`, `Honda Civic`). Os dados seguintes permanecem gravados no arquivo H2 local, na pasta `servidor-api`. Para reiniciar a demonstração do zero, **com o servidor desligado**, exclua o arquivo `servidor-api/garagem.mv.db` e inicie novamente.
+
+Regras implementadas: e-mail único, placa única e válida, pessoa/veículo existentes para reserva, reserva permitida apenas se disponível, liberação do veículo ao cancelar; conflitos de negócio devolvem `409`.
+
+## 10. Integrante e uso de inteligência artificial
+
+**Integrante:** Wayser Henrique de Faria Lopes (trabalho individual).
+
+**Ferramenta de IA utilizada:** ChatGPT (OpenAI). Utilizada como apoio na estruturação da arquitetura, geração e revisão de exemplos de código, documentação, organização de testes e elaboração dos diagramas. Cabe ao aluno validar e compreender a solução.
+
+## 11. Observações de entrega
+
+- A pasta completa deve ser publicada em um **repositório público** no GitHub ou GitLab.
+- O nome do repositório pode ser `garagem-veiculos-entrega1` (existente) ou outro a ser criado.
+- No Classroom, enviar a URL pública e comentar: `Integrante: Wayser Henrique de Faria Lopes. Tema: Cliente-Servidor e Arquiteturas em N Camadas (Tema 5).`
+- Este projeto NÃO publica o repositório automaticamente. Verifique os arquivos online e teste o comando do README na sua máquina antes de enviar.
